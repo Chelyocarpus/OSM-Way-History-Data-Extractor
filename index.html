@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OSM Way History Data Extractor</title>
+    
+    <!-- Security headers -->
+    <meta http-equiv="Content-Security-Policy" content="
+        default-src 'self';
+        script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com;
+        style-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com;
+        connect-src 'self' https://api.openstreetmap.org;
+        img-src 'self' data:;
+        font-src 'self';
+        object-src 'none';
+        base-uri 'self';
+        form-action 'self';
+    ">
+    <meta http-equiv="X-Content-Type-Options" content="nosniff">
+    <meta http-equiv="X-Frame-Options" content="DENY">
+    <meta http-equiv="X-XSS-Protection" content="1; mode=block">
+    <meta name="referrer" content="strict-origin-when-cross-origin">
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="assets/css/styles.css">
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <div class="container mx-auto px-4 py-8 max-w-4xl">
+        <header class="text-center mb-8">
+            <h1 class="text-3xl font-bold text-gray-800 mb-2">
+                🗺️ OSM Way History Data Extractor
+            </h1>
+            <p class="text-gray-600">Extract coordinates from OpenStreetMap way versions</p>
+        </header>
+
+        <main>
+            <!-- Configuration Toggle Button -->
+            <div class="mb-6">
+                <button id="config-toggle" 
+                        class="bg-gray-600 text-white px-4 py-2 rounded-md hover:bg-gray-700 focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-colors"
+                        aria-expanded="false"
+                        aria-controls="config-panel">
+                    ⚙️ Configuration
+                    <span id="config-toggle-icon" class="ml-2 transition-transform">▼</span>
+                </button>
+            </div>
+
+            <!-- Configuration Panel -->
+            <section id="config-panel" class="bg-white rounded-lg shadow-md p-6 mb-6 hidden" role="region" aria-labelledby="config-heading">
+                <h2 id="config-heading" class="text-xl font-semibold mb-4">Configuration</h2>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                        <label for="log-level" class="block text-sm font-medium text-gray-700 mb-1">
+                            Log Level
+                        </label>
+                        <select id="log-level" class="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                            <option value="error">Error</option>
+                            <option value="warn">Warning</option>
+                            <option value="info" selected>Info</option>
+                            <option value="debug">Debug</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="rate-limit" class="block text-sm font-medium text-gray-700 mb-1">
+                            Rate Limit (ms)
+                        </label>
+                        <input type="number" id="rate-limit" value="500" min="100" max="5000" 
+                               class="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                    <div>
+                        <label for="cache-expiry" class="block text-sm font-medium text-gray-700 mb-1">
+                            Cache Expiry (days)
+                        </label>
+                        <input type="number" id="cache-expiry" value="7" min="1" max="30"
+                               class="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                </div>
+                <div class="mt-4">
+                    <button id="clear-cache" 
+                            class="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition-colors">
+                        Clear Cache
+                    </button>
+                </div>
+            </section>
+
+            <!-- Input Section -->
+            <section class="bg-white rounded-lg shadow-md p-6 mb-6" role="region" aria-labelledby="input-heading">
+                <h2 id="input-heading" class="text-xl font-semibold mb-4">Way Input</h2>
+                <div class="flex flex-col sm:flex-row gap-4">
+                    <div class="flex-1">
+                        <label for="way-id" class="block text-sm font-medium text-gray-700 mb-1">
+                            Way ID
+                        </label>
+                        <input type="text" id="way-id" placeholder="Enter way ID (e.g., 12345678)"
+                               class="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-lg"
+                               aria-describedby="way-id-help">
+                        <p id="way-id-help" class="text-sm text-gray-500 mt-1">
+                            Enter the OpenStreetMap way ID you want to extract history from
+                        </p>
+                    </div>
+                    <div class="flex items-end">
+                        <button id="fetch-history" 
+                                class="bg-blue-600 text-white px-6 py-3 rounded-md hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+                            Fetch History
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Progress Section -->
+            <section id="progress-section" class="bg-white rounded-lg shadow-md p-6 mb-6 hidden" role="region" aria-labelledby="progress-heading">
+                <h2 id="progress-heading" class="text-xl font-semibold mb-4">Progress</h2>
+                <div class="space-y-4">
+                    <div>
+                        <div class="flex justify-between text-sm text-gray-600 mb-1">
+                            <span id="progress-label">Processing...</span>
+                            <span id="progress-eta"></span>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-2">
+                            <div id="progress-bar" class="bg-blue-600 h-2 rounded-full transition-all duration-300" style="width: 0%"></div>
+                        </div>
+                        <div class="text-sm text-gray-500 mt-1">
+                            <span id="progress-current">0</span> / <span id="progress-total">0</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Version Selection -->
+            <section id="version-section" class="bg-white rounded-lg shadow-md p-6 mb-6 hidden" role="region" aria-labelledby="version-heading">
+                <h2 id="version-heading" class="text-xl font-semibold mb-4">Select Way Version</h2>
+                <div id="version-list" class="space-y-2 max-h-96 overflow-y-auto">
+                    <!-- Version buttons will be populated here -->
+                </div>
+            </section>
+
+            <!-- Way Merger Section -->
+            <section id="merger-section" class="bg-white rounded-lg shadow-md p-6 mb-6 hidden" role="region" aria-labelledby="merger-heading">
+                <h2 id="merger-heading" class="text-xl font-semibold mb-4">🔗 Merge with Additional Ways</h2>
+                <div class="bg-blue-50 border border-blue-200 rounded-md p-4 mb-4">
+                    <p class="text-sm text-blue-800">
+                        <strong>Note:</strong> This allows you to merge coordinates from multiple ways to create a complete route. 
+                        Ways will be merged in the order specified, with automatic connection detection.
+                    </p>
+                </div>
+                
+                <div class="space-y-4">
+                    <div>
+                        <label for="additional-ways" class="block text-sm font-medium text-gray-700 mb-2">
+                            Additional Way IDs and Versions (comma-separated)
+                        </label>
+                        <textarea id="additional-ways" 
+                                  placeholder="Enter way IDs with optional versions (e.g., 123456:5, 789012, 345678:latest)"
+                                  class="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
+                                  rows="3"
+                                  aria-describedby="additional-ways-help"></textarea>
+                        <p id="additional-ways-help" class="text-sm text-gray-500 mt-1">
+                            Enter way IDs separated by commas. Optionally specify version with colon (e.g., wayId:version). 
+                            Use "latest" for most recent version or omit for automatic latest selection.
+                        </p>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="flex items-center">
+                                <input type="checkbox" id="auto-reverse" checked 
+                                       class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                                <span class="ml-2 text-sm text-gray-700">Auto-reverse ways for optimal connection</span>
+                            </label>
+                        </div>
+                        <div>
+                            <label class="flex items-center">
+                                <input type="checkbox" id="remove-duplicates" checked 
+                                       class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                                <span class="ml-2 text-sm text-gray-700">Remove duplicate coordinates</span>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="flex flex-col sm:flex-row gap-4">
+                        <button id="merge-ways" 
+                                class="bg-purple-600 text-white px-6 py-3 rounded-md hover:bg-purple-700 focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+                            🔗 Merge Ways
+                        </button>
+                        <button id="reset-merger" 
+                                class="bg-gray-600 text-white px-6 py-3 rounded-md hover:bg-gray-700 focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-colors">
+                            🔄 Reset to Single Way
+                        </button>
+                    </div>
+                    
+                    <div id="merge-info" class="bg-gray-50 rounded-md p-4 hidden">
+                        <h3 class="font-medium text-gray-900 mb-2">Merge Summary</h3>
+                        <div class="space-y-1 text-sm text-gray-600">
+                            <div>Total ways processed: <span id="merge-ways-count">0</span></div>
+                            <div>Total coordinates: <span id="merge-coords-count">0</span></div>
+                            <div>Connections found: <span id="merge-connections-count">0</span></div>
+                            <div>Duplicates removed: <span id="merge-duplicates-count">0</span></div>
+                            <div id="merge-versions-info" class="mt-2 pt-2 border-t border-gray-200">
+                                <div class="font-medium text-gray-700 mb-1">Ways and Versions Used:</div>
+                                <div id="merge-versions-list" class="text-xs text-gray-600">
+                                    <!-- Version details will be populated here -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Export Section -->
+            <section id="export-section" class="bg-white rounded-lg shadow-md p-6 mb-6 hidden" role="region" aria-labelledby="export-heading">
+                <h2 id="export-heading" class="text-xl font-semibold mb-4">Export Data</h2>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <button id="export-gpx" class="export-btn bg-green-600 text-white p-4 rounded-md hover:bg-green-700 focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-colors">
+                        <div class="text-2xl mb-2">📍</div>
+                        <div class="font-medium">GPX</div>
+                    </button>
+                    <button id="export-kml" class="export-btn bg-orange-600 text-white p-4 rounded-md hover:bg-orange-700 focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 transition-colors">
+                        <div class="text-2xl mb-2">🌍</div>
+                        <div class="font-medium">KML</div>
+                    </button>
+                    <button id="export-geojson" class="export-btn bg-purple-600 text-white p-4 rounded-md hover:bg-purple-700 focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 transition-colors">
+                        <div class="text-2xl mb-2">🗺️</div>
+                        <div class="font-medium">GeoJSON</div>
+                    </button>
+                    <button id="export-json" class="export-btn bg-gray-600 text-white p-4 rounded-md hover:bg-gray-700 focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-colors">
+                        <div class="text-2xl mb-2">📄</div>
+                        <div class="font-medium">JSON</div>
+                    </button>
+                </div>
+                <div id="export-info" class="mt-4 p-4 bg-gray-50 rounded-md">
+                    <p class="text-sm text-gray-600">
+                        <span id="coord-count">0</span> coordinates ready for export
+                    </p>
+                </div>
+            </section>
+
+            <!-- Log Toggle Button -->
+            <div class="mb-6">
+                <button id="log-toggle" 
+                        class="bg-gray-800 text-white px-4 py-2 rounded-md hover:bg-gray-900 focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-colors"
+                        aria-expanded="false"
+                        aria-controls="log-panel">
+                    📋 Log Output
+                    <span id="log-toggle-icon" class="ml-2 transition-transform">▼</span>
+                </button>
+            </div>
+
+            <!-- Log Section -->
+            <section id="log-panel" class="bg-white rounded-lg shadow-md p-6 hidden" role="region" aria-labelledby="log-heading">
+                <h2 id="log-heading" class="text-xl font-semibold mb-4">Log Output</h2>
+                <div id="log-output" class="bg-gray-900 text-green-400 p-4 rounded-md h-64 overflow-y-auto font-mono text-sm"
+                     role="log" aria-live="polite" aria-label="Application log output">
+                    <!-- Log messages will appear here -->
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Toast Notifications -->
+    <div id="toast-container" class="fixed top-4 right-4 z-50 space-y-2" aria-live="assertive">
+        <!-- Toast messages will appear here -->
+    </div>
+
+    <script src="src/config.js"></script>
+    <script src="src/utils/logger.js"></script>
+    <script src="src/utils/cache.js"></script>
+    <script src="src/core/api.js"></script>
+    <script src="src/core/way-merger.js"></script>
+    <script src="src/utils/exports.js"></script>
+    <script src="src/core/app.js"></script>
+</body>
+</html>

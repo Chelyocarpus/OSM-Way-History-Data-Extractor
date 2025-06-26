@@ -1,0 +1,120 @@
+/* Custom styles for enhanced accessibility and UX */
+
+/* Smooth scrolling for the entire page */
+html {
+    scroll-behavior: smooth;
+}
+
+/* Focus indicators for better accessibility */
+.focus-visible {
+    outline: 2px solid #3B82F6;
+    outline-offset: 2px;
+}
+
+/* Custom scrollbar for log output */
+#log-output::-webkit-scrollbar {
+    width: 8px;
+}
+
+#log-output::-webkit-scrollbar-track {
+    background: #374151;
+}
+
+#log-output::-webkit-scrollbar-thumb {
+    background: #6B7280;
+    border-radius: 4px;
+}
+
+#log-output::-webkit-scrollbar-thumb:hover {
+    background: #9CA3AF;
+}
+
+/* Animation for progress bar */
+@keyframes pulse {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.5;
+    }
+}
+
+.pulse {
+    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* Toast animations */
+.toast-enter {
+    transform: translateX(100%);
+    opacity: 0;
+}
+
+.toast-enter-active {
+    transform: translateX(0);
+    opacity: 1;
+    transition: all 0.3s ease-out;
+}
+
+.toast-exit {
+    transform: translateX(0);
+    opacity: 1;
+}
+
+.toast-exit-active {
+    transform: translateX(100%);
+    opacity: 0;
+    transition: all 0.3s ease-in;
+}
+
+/* Scroll to top transition */
+.scroll-to-top {
+    scroll-behavior: smooth;
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+    .bg-gray-50 {
+        background-color: white;
+    }
+    
+    .text-gray-600 {
+        color: black;
+    }
+    
+    .border-gray-300 {
+        border-color: black;
+    }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+    html {
+        scroll-behavior: auto;
+    }
+    
+    .transition-colors,
+    .transition-all,
+    .toast-enter-active,
+    .toast-exit-active {
+        transition: none;
+    }
+    
+    .pulse {
+        animation: none;
+    }
+}
+
+/* Print styles */
+@media print {
+    .no-print {
+        display: none;
+    }
+    
+    .bg-white {
+        background: white !important;
+    }
+    
+    .text-white {
+        color: black !important;
+    }
+}
