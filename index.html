@@ -5,6 +5,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>OSM Way History Data Extractor</title>
     
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+    <link rel="icon" type="image/png" sizes="32x32" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><circle cx='16' cy='16' r='15' fill='%232563eb' stroke='%231d4ed8' stroke-width='2'/><g stroke='%23ffffff' stroke-width='1.5' fill='none' stroke-linecap='round'><path d='M6 16 L26 16'/><path d='M16 6 L16 26'/><path d='M10 10 L22 22'/><path d='M22 10 L10 22'/><circle cx='10' cy='16' r='1.5' fill='%23ffffff'/><circle cx='16' cy='10' r='1.5' fill='%23ffffff'/><circle cx='22' cy='16' r='1.5' fill='%23ffffff'/><circle cx='16' cy='22' r='1.5' fill='%23ffffff'/></g><g transform='translate(22, 10)'><circle cx='0' cy='0' r='3' fill='%23fbbf24' stroke='%23f59e0b' stroke-width='0.5'/><path d='M0 -2 L0 0 L1.5 1' stroke='%2392400e' stroke-width='0.8' fill='none' stroke-linecap='round'/></g></svg>">
+    <link rel="icon" type="image/png" sizes="16x16" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><circle cx='8' cy='8' r='7' fill='%232563eb'/><g stroke='%23ffffff' stroke-width='1' fill='none'><path d='M3 8 L13 8'/><path d='M8 3 L8 13'/><circle cx='5' cy='8' r='0.5' fill='%23ffffff'/><circle cx='11' cy='8' r='0.5' fill='%23ffffff'/></g><circle cx='11' cy='5' r='1.5' fill='%23fbbf24'/></svg>">
+    <link rel="apple-touch-icon" sizes="180x180" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'><circle cx='90' cy='90' r='85' fill='%232563eb' stroke='%231d4ed8' stroke-width='10'/><g stroke='%23ffffff' stroke-width='8' fill='none' stroke-linecap='round'><path d='M30 90 L150 90'/><path d='M90 30 L90 150'/><path d='M55 55 L125 125'/><path d='M125 55 L55 125'/><circle cx='55' cy='90' r='8' fill='%23ffffff'/><circle cx='90' cy='55' r='8' fill='%23ffffff'/><circle cx='125' cy='90' r='8' fill='%23ffffff'/><circle cx='90' cy='125' r='8' fill='%23ffffff'/></g><g transform='translate(125, 55)'><circle cx='0' cy='0' r='15' fill='%23fbbf24' stroke='%23f59e0b' stroke-width='3'/><path d='M0 -10 L0 0 L8 5' stroke='%2392400e' stroke-width='4' fill='none' stroke-linecap='round'/></g></svg>">
+    
+    <!-- Web App Manifest -->
+    <link rel="manifest" href="assets/manifest.json">
+    <meta name="theme-color" content="#2563eb">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="OSM History">
+    
     <!-- Security headers -->
     <meta http-equiv="Content-Security-Policy" content="
         default-src 'self';
@@ -28,8 +41,25 @@
 <body class="bg-gray-50 min-h-screen">
     <div class="container mx-auto px-4 py-8 max-w-4xl">
         <header class="text-center mb-8">
-            <h1 class="text-3xl font-bold text-gray-800 mb-2">
-                🗺️ OSM Way History Data Extractor
+            <h1 class="text-3xl font-bold text-gray-800 mb-2 flex items-center justify-center gap-3">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32" class="inline-block">
+                    <circle cx="16" cy="16" r="15" fill="#2563eb" stroke="#1d4ed8" stroke-width="2"/>
+                    <g stroke="#ffffff" stroke-width="1.5" fill="none" stroke-linecap="round">
+                        <path d="M6 16 L26 16"/>
+                        <path d="M16 6 L16 26"/>
+                        <path d="M10 10 L22 22"/>
+                        <path d="M22 10 L10 22"/>
+                        <circle cx="10" cy="16" r="1.5" fill="#ffffff"/>
+                        <circle cx="16" cy="10" r="1.5" fill="#ffffff"/>
+                        <circle cx="22" cy="16" r="1.5" fill="#ffffff"/>
+                        <circle cx="16" cy="22" r="1.5" fill="#ffffff"/>
+                    </g>
+                    <g transform="translate(22, 10)">
+                        <circle cx="0" cy="0" r="3" fill="#fbbf24" stroke="#f59e0b" stroke-width="0.5"/>
+                        <path d="M0 -2 L0 0 L1.5 1" stroke="#92400e" stroke-width="0.8" fill="none" stroke-linecap="round"/>
+                    </g>
+                </svg>
+                OSM Way History Data Extractor
             </h1>
             <p class="text-gray-600">Extract coordinates from OpenStreetMap way versions</p>
         </header>
