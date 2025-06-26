@@ -1,4 +1,4 @@
-# 🗺️ OSM Way History Data Extractor
+![grafik](https://github.com/user-attachments/assets/af8ab83a-5429-4f22-9034-e16bc9d86b5c)
 
 A powerful web application for extracting and analyzing historical coordinate data from OpenStreetMap (OSM) ways. This tool allows you to fetch way versions, extract coordinates with temporal accuracy, merge multiple ways, and export data in various formats.
 
@@ -191,10 +191,6 @@ Contributions are welcome! The codebase follows modern JavaScript practices:
 - **Error Handling**: Comprehensive error handling
 - **Documentation**: Well-documented code with JSDoc-style comments
 - **Security Focus**: Security-first development approach
-
-## 📄 License
-
-This project is open source. Feel free to use, modify, and distribute according to your needs.
 
 ## 🙏 Acknowledgments
 
