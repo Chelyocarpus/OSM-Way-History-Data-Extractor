@@ -1,4 +1,4 @@
-![grafik](https://github.com/user-attachments/assets/af8ab83a-5429-4f22-9034-e16bc9d86b5c)
+![grafik](https://github.com/user-attachments/assets/7762f884-cfa3-4ea6-a8b6-f0f1c2afb6eb)
 
 A powerful web application for extracting and analyzing historical coordinate data from OpenStreetMap (OSM) ways. This tool allows you to fetch way versions, extract coordinates with temporal accuracy, merge multiple ways, and export data in various formats.
 
