@@ -1,0 +1,4 @@
+<!-- This is a placeholder for a 16x16 PNG favicon -->
+<!-- In a real project, you would generate this from the SVG using a tool like favicon.io -->
+<!-- For now, I'll create a simple data URI favicon -->
+data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><circle cx="8" cy="8" r="7" fill="%232563eb"/><g stroke="%23ffffff" stroke-width="1" fill="none"><path d="M3 8 L13 8"/><path d="M8 3 L8 13"/><circle cx="5" cy="8" r="0.5" fill="%23ffffff"/><circle cx="11" cy="8" r="0.5" fill="%23ffffff"/></g><circle cx="11" cy="5" r="1.5" fill="%23fbbf24"/></svg>

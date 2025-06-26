@@ -110,8 +110,10 @@ OSM-History-Extractor/
 │       ├── exports.js     # Multi-format data export functionality
 │       └── logger.js      # Configurable logging system
 ├── assets/                # Static assets
-│   └── css/              # Stylesheets
-│       └── styles.css    # Custom styles and animations
+│   ├── css/              # Stylesheets
+│   │   └── styles.css    # Custom styles and animations
+│   ├── favicon.svg       # Application favicon (SVG format)
+│   └── manifest.json     # Web app manifest for mobile/PWA support
 └── docs/                 # Documentation
     ├── API.md           # API documentation
     └── DEVELOPMENT.md   # Development guide
